@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Nossa Linha do Tempo 🗺️✨</title>
+    <style>
+        :root {
+            --primary-color: #0e63ff;
+            --secondary-color: #0004ff;
+            --background-color: #77adff;
+            --text-color: #000000;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        /* Fundo com corações flutuantes */
+        .bg-hearts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 2.5rem 1rem 1rem 1rem;
+            z-index: 1;
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            font-size: 2.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-style: italic;
+            color: #ffffff;
+            font-size: 0.95rem;
+        }
+
+        /* Contentor Principal Horizontal */
+        .timeline-wrapper {
+            position: relative;
+            width: 100%;
+            padding: 2rem 0;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .timeline-container {
+            display: flex;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 2rem;
+            gap: 60px;
+            scrollbar-width: none; 
+        }
+
+        .timeline-container::-webkit-scrollbar {
+            display: none; /* Para Chrome/Safari */
+        }
+
+        /* A Estrada / Linha que conecta os pontos */
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 2500px; /* Ajustado ao número de cartões */
+            height: 6px;
+            background: repeating-linear-gradient(90deg, var(--secondary-color), var(--secondary-color) 15px, transparent 15px, transparent 30px);
+            z-index: 1;
+            transform: translateY(-50%);
+        }
+
+        /* Cartões de cada Marco */
+        .timeline-card {
+            position: relative;
+            flex: 0 0 320px; 
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(255, 117, 151, 0.12);
+            border: 1px solid rgba(255, 179, 198, 0.3);
+            z-index: 2;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .timeline-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(255, 117, 151, 0.2);
+        }
+
+        /* Pin/Bolinha na Estrada */
+        .card-pin {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--card-bg);
+            border: 3px solid var(--primary-color);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            z-index: 3;
+        }
+
+        /* Alternar cartões para cima e para baixo da estrada */
+        .timeline-card:nth-child(odd) {
+            margin-bottom: 120px;
+        }
+        .timeline-card:nth-child(odd) .card-pin {
+            bottom: -78px;
+        }
+
+        .timeline-card:nth-child(even) {
+            margin-top: 120px;
+        }
+        .timeline-card:nth-child(even) .card-pin {
+            top: -78px;
+        }
+
+        /* Conteúdo Interno do Cartão */
+        .date {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .timeline-card h3 {
+            color: #333;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .timeline-card p {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #555;
+            margin-bottom: 12px;
+        }
+
+        /* Ajuste nas imagens para que fiquem perfeitas no cartão */
+        .card-img {
+            width: 100%;
+            height: 150px; /* Aumentei um pouquinho para destacar bem a foto */
+            border-radius: 12px;
+            object-fit: cover; /* Faz a imagem preencher o espaço sem distorcer */
+            border: 1px solid rgba(255, 179, 198, 0.2);
+        }
+
+        /* Botões de Navegação (Setas) */
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .nav-btn:hover { background: #2f67e0; }
+        .prev-btn { left: 20px; }
+        .next-btn { right: 20px; }
+
+        .timeline-container::after {
+            content: '';
+            flex: 0 0 50px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 0.9rem;
+            z-index: 1;
+        }
+
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.8rem; }
+            .timeline-card { flex: 0 0 280px; padding: 18px; }
+            .nav-btn { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-hearts" id="heartsContainer"></div>
+
+    <header>
+        <h1>O Nosso Roadmap do Amor 🗺️❤️</h1>
+        <p>Arrasta para o lado para navegar pela nossa história...</p>
+    </header>
+
+    <div class="timeline-wrapper">
+        <button class="nav-btn prev-btn" onclick="scrollTimeline(-1)">‹</button>
+        <button class="nav-btn next-btn" onclick="scrollTimeline(1)">›</button>
+
+        <div class="timeline-container" id="timelineContainer">
+            
+            <div class="timeline-card">
+                <div class="card-pin">🎲</div>
+                <div>
+                    <div class="date">03/05/2026</div>
+                    <h3>Onde Tudo Começou ✨</h3>
+                    <p>Lembra de quando fomos para uma partida casual de Monopoly? Foi quando te vi chegar que percebi que a minha vida nunca mais seria a mesma...</p>
+                </div>
+                <img src="src/a3.jpeg" alt="Onde tudo começou" class="card-img">
+            </div>
+
+            <div class="timeline-card">
+                <div class="card-pin">🎥</div>
+                <div>
+                    <div class="date">09/05/2026</div>
+                    <h3>O Primeiro Encontro</h3>
+                    <p>Não havia passado nem uma semana, e lá estávamos nós, na sua casa deitados, assistindo Lilo e Stitch, A Princesa e o Sapo, A Bela e a Fera... O início da nossa própria magia.</p>
+                </div>
+                <img src="src/a4.jpg" alt="O Primeiro Encontro" class="card-img">
+            </div>
+
+            <div class="timeline-card">
+                <div class="card-pin">🍳</div>
+                <div>
+                    <div class="date">22/05/2026 - 24/05/2026</div>
+                    <h3>Chefes de Cozinha 👩‍🍳👨‍🍳</h3>
+                    <p>O fim de semana em que inventamos de fazer comidas novas! Cozinhando contigo, adivinhando o que era uma colher de sopa de manteiga, varias risadas e bagunça na cozinha tornou-se um dos meus momentos favoritos.</p>
+                </div>
+                <img src="src/a2.jpeg" alt="Chefes de Cozinha" class="card-img">
+            </div>
+
+            <div class="timeline-card">
+                <div class="card-pin">☁️</div>
+                <div>
+                    <div class="date">Todos os Dias</div>
+                    <h3>Planos & Conexão</h3>
+                    <p>Os nossos momentos favoritos não precisam de muito. Ficar deitados, conversando sobre nós, historias e aventuras, desenhando mentalmente o nosso futuro... É nesse momento que me sinto em casa.</p>
+                </div>
+                <img src="src/a1.jpeg" alt="Planos & Conexão" class="card-img">
+            </div>
+
+            <div class="timeline-card">
+                <div class="card-pin">💍</div>
+                <div>
+                    <div class="date">Hoje e Sempre</div>
+                    <h3>Para o Infinito... 🚀</h3>
+                    <p>Este mapa continua em construção todos os dias. Mal posso esperar pelos próximos capítulos, quilómetros e todas as curvas da nossa jornada juntos... E uma futura surpresinha... !</p>
+                </div>
+                <div style="text-align: center; font-size: 2.5rem; padding: 10px; animation: pulse 1.5s infinite ease-in-out;">🎁</div>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        <p>A nossa melhor viagem é estarmos juntos. 🔒💖</p>
+    </footer>
+
+    <script>
+        const container = document.getElementById('timelineContainer');
+
+        // Adicionando animação sutil para o presente final pulsar
+        const styleSheet = document.styleSheets[0];
+        styleSheet.insertRule(`
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.15); }
+                100% { transform: scale(1); }
+            }
+        `, styleSheet.cssRules.length);
+
+        function scrollTimeline(direction) {
+            const scrollAmount = 380; 
+            container.scrollBy({
+                left: direction * scrollAmount,
+                behavior: 'smooth'
+            });
+        }
+
+        container.addEventListener('wheel', (evt) => {
+            evt.preventDefault();
+            container.scrollLeft += evt.deltaY;
+        });
+
+        // Gerador de corações flutuantes ao fundo (efeito sutil)
+        const heartsContainer = document.getElementById('heartsContainer');
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.innerHTML = '❤️';
+            heart.style.position = 'absolute';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.top = '100vh';
+            heart.style.fontSize = Math.random() * 10 + 10 + 'px';
+            heart.style.opacity = Math.random() * 0.2 + 0.05;
+            heart.style.transform = `translateY(0)`;
+            heart.style.transition = 'transform 7s linear, opacity 7s ease';
+            
+            heartsContainer.appendChild(heart);
+
+            setTimeout(() => {
+                heart.style.transform = 'translateY(-105vh)';
+            }, 50);
+
+            setTimeout(() => {
+                heart.remove();
+            }, 7000);
+        }
+        setInterval(createHeart, 1000);
+    </script>
+</body>
+</html>
